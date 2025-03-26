@@ -28,7 +28,7 @@ async function streamToNodeReadable(req: Request): Promise<Readable> {
     },
   });
 
-  // Required for formidable to parse correctly
+
   const contentType = req.headers.get("content-type") || "";
   const contentLength = req.headers.get("content-length") || "";
 
@@ -88,7 +88,7 @@ export async function POST(req: Request) {
     const audioFileName = audioFile.newFilename || "track.mp3";
     const fileUrl = `/uploads/${audioFileName}`;
 
-    // ✅ Fallback if user didn't upload an image
+    //Fallback if user didn't upload an image
     const imageFileName = imageFile?.newFilename || null;
     const imageUrl = imageFileName ? `/uploads/${imageFileName}` : "/default-track.jpg";
 

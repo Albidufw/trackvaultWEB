@@ -42,7 +42,6 @@ export async function POST(req: Request) {
 
     try {
       for (const trackId of trackIds) {
-        // You could also validate the track exists here if needed
         await prisma.purchase.create({
           data: {
             userId,

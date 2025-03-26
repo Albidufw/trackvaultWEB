@@ -1,4 +1,3 @@
-// src/app/success/page.tsx
 'use client';
 
 import Link from 'next/link';
@@ -6,7 +5,6 @@ import { useEffect } from 'react';
 
 export default function SuccessPage() {
   useEffect(() => {
-    // Clear local storage or cart context if needed
     localStorage.removeItem('cart');
   }, []);
 

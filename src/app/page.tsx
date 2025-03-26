@@ -8,7 +8,6 @@ export default function HomePage() {
       className="flex flex-col items-center justify-center min-h-screen text-white px-4 bg-cover bg-center relative"
       style={{ backgroundImage: `url('/images/retrodisc.jpg')` }}
     >
-      {/* Optional dark overlay for contrast */}
       <div className="absolute inset-0 bg-black/60 z-0" />
 
       {/* Main content */}

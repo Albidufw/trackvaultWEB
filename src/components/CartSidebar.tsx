@@ -9,7 +9,6 @@ export default function CartSidebar() {
 
   return (
     <>
-      {/* Lightened Dimmed Background */}
       {isSidebarOpen && (
         <div
           onClick={toggleSidebar}
