@@ -6,14 +6,16 @@ import path from "path";
 import { Readable } from "stream";
 import type { Fields, Files, File } from "formidable";
 
-// Disable Next.js default body parser
 export const config = {
   api: {
     bodyParser: false,
   },
+  runtime: "nodejs", 
+  maxDuration: 60,   
+  maxBodySize: "25mb", 
 };
 
-// Convert request into a Node-readable stream
+
 async function streamToNodeReadable(req: Request): Promise<Readable> {
   const reader = req.body?.getReader();
   const stream = new Readable({
@@ -48,6 +50,7 @@ async function parseForm(req: Request): Promise<{ fields: Fields; files: Files }
   const form = new IncomingForm({
     uploadDir: path.join(process.cwd(), "public/uploads"),
     keepExtensions: true,
+    maxFileSize: 50 * 1024 * 1024, // 50 MB limit
   });
 
   return new Promise((resolve, reject) => {
@@ -58,7 +61,7 @@ async function parseForm(req: Request): Promise<{ fields: Fields; files: Files }
   });
 }
 
-// POST handler
+
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
 
