@@ -48,7 +48,7 @@ async function parseForm(req: Request): Promise<{ fields: Fields; files: Files }
   const stream = await streamToNodeReadable(req);
 
   const form = new IncomingForm({
-    uploadDir: path.join(process.cwd(), "public/uploads"),
+    uploadDir: path.join(process.cwd(), "tmp"),
     keepExtensions: true,
     maxFileSize: 50 * 1024 * 1024, // 50 MB limit
   });
