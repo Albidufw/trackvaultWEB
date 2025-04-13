@@ -1,5 +1,5 @@
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -25,13 +25,13 @@ model Track {
   id         Int        @id @default(autoincrement())
   title      String
   fileUrl    String
-  imageUrl  String? 
-  price      Decimal    @db.Decimal(10, 2)
+  imageUrl   String? 
+  price      Decimal
   genre      String?
   artist     User       @relation(fields: [artistId], references: [id], onDelete: Cascade)
   artistId   Int
   purchases  Purchase[]
-  createdAt DateTime   @default(now())
+  createdAt  DateTime   @default(now())
 }
 
 model Purchase {
@@ -40,7 +40,7 @@ model Purchase {
   userId    Int
   track     Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
   trackId   Int
-  amount    Decimal  @db.Decimal(10, 2)
+  amount    Decimal
   createdAt DateTime @default(now())
 }
 
@@ -50,9 +50,9 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?  @db.Text //Increased field size  
-  access_token      String?  @db.Text   
-  id_token          String?  @db.Text 
+  refresh_token     String?
+  access_token      String?
+  id_token          String?
   expires_at        Int?
   token_type        String?
   scope             String?
