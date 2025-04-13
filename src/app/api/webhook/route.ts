@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     const trackIdsString = session.metadata?.trackIds || "";
 
     if (!userId || !trackIdsString) {
-      console.error("❌ Missing metadata:", session.metadata);
+      console.error("Missing metadata:", session.metadata);
       return NextResponse.json({ error: "Missing metadata" }, { status: 400 });
     }
 

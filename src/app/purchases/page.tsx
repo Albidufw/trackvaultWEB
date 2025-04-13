@@ -21,7 +21,6 @@ export default function PurchasesPage() {
         const res = await fetch("/api/purchases");
         const data = await res.json();
 
-        // ✅ Ensure data.purchases is an array
         if (Array.isArray(data.purchases)) {
           setPurchases(data.purchases);
         } else {
