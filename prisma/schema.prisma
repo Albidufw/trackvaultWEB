@@ -50,9 +50,9 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?  @db.Text   // ✅ Increased field size
-  access_token      String?  @db.Text   // ✅ Increased field size
-  id_token          String?  @db.Text   // ✅ Increased field size
+  refresh_token     String?  @db.Text //Increased field size  
+  access_token      String?  @db.Text   
+  id_token          String?  @db.Text 
   expires_at        Int?
   token_type        String?
   scope             String?
