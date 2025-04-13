@@ -1,8 +1,12 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig: import('next').NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  api: {
+    bodyParser: {
+      sizeLimit: '50mb', // increase if needed
+    },
   },
 };
 
