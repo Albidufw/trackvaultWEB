@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { UploadButton } from "@/app/api/uploadthing/core";
+import { UploadButton } from "@/utils/uploadthingClient";
 import { useRouter } from 'next/navigation';
 
 export default function UploadPage() {
