@@ -14,8 +14,6 @@ export default function UploadPage() {
 
   const finalGenre = customGenre || genre;
 
-  const isValid = title && price && finalGenre;
-
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4 py-16">
       <div className="max-w-md w-full space-y-6">
@@ -67,8 +65,13 @@ export default function UploadPage() {
         <div>
           <label className="text-sm font-medium text-zinc-700 block mb-1">Upload Track & Cover</label>
 
-          <UploadButton
+            <UploadButton
             endpoint="trackUploader"
+            input={{
+              title,
+              price: Number(price),
+              genre: finalGenre,
+            }}
             onClientUploadComplete={(res) => {
               console.log('Upload complete!', res);
               setUploadComplete(true);
@@ -83,8 +86,7 @@ export default function UploadPage() {
               alert('Upload failed!');
             }}
             appearance={{
-              button:
-                'bg-black text-white px-4 py-2 rounded hover:bg-zinc-800 transition text-sm',
+              button: 'bg-black text-white px-4 py-2 rounded hover:bg-zinc-800 transition text-sm',
               container: 'w-full mt-2',
             }}
           />

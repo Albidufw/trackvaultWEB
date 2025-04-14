@@ -25,7 +25,8 @@
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",
     "stripe": "^17.7.0",
-    "uploadthing": "^7.6.0"
+    "uploadthing": "^7.6.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
