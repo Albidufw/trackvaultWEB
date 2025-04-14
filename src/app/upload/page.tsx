@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { UploadButton } from '@/utils/uploadthingClient';
 import { useRouter } from 'next/navigation';
+import { uploadFiles } from '@/utils/uploadthingClient';
 
 export default function UploadPage() {
   const { data: session } = useSession();
@@ -13,45 +13,75 @@ export default function UploadPage() {
   const [price, setPrice] = useState('');
   const [genre, setGenre] = useState('');
   const [customGenre, setCustomGenre] = useState('');
-  const [audioUrl, setAudioUrl] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const finalGenre = customGenre || genre;
-  const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
-  const isValid = title && price && finalGenre && audioUrl;
+  const isValid = title && price && finalGenre && audioFile;
 
   const handleSubmit = async () => {
     if (!isValid) {
-      alert('Please fill in all required fields.');
-      return;
+      return alert('Please fill in all fields.');
     }
 
     setUploading(true);
 
     try {
+      const input = {
+        title,
+        price: parseFloat(price),
+        genre: finalGenre,
+      };
+
+      // Upload audio
+      const audioRes = await uploadFiles('audioUploader', {
+        files: [audioFile!],
+        input,
+      });
+
+      if (!audioRes?.[0]?.url) {
+        throw new Error('Audio upload failed.');
+      }
+
+      const audioUrl = audioRes[0].url;
+
+      // Upload image (if selected)
+      let imageUrl = '/default-track.jpg';
+      if (imageFile) {
+        const imageRes = await uploadFiles('imageUploader', {
+          files: [imageFile],
+          input,
+        });
+
+        if (!imageRes?.[0]?.url) {
+          throw new Error('Image upload failed.');
+        }
+
+        imageUrl = imageRes[0].url;
+      }
+
       const res = await fetch('/api/tracks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title,
-          price: numericPrice,
+          price: parseFloat(price),
           genre: finalGenre,
           fileUrl: audioUrl,
-          imageUrl: imageUrl || '/default-track.jpg',
+          imageUrl,
         }),
       });
 
       const data = await res.json();
-      console.log('Track saved response:', data);
 
-      if (!res.ok) {
-        alert(`Failed to save track: ${data?.error || 'Unknown error'}`);
-      } else {
+      if (res.ok) {
         router.push('/store');
+      } else {
+        alert(`Failed to save track: ${data?.error || 'Unknown error'}`);
       }
     } catch (err) {
-      console.error('Track upload error:', err);
+      console.error('Upload error:', err);
       alert('Something went wrong during upload.');
     } finally {
       setUploading(false);
@@ -117,53 +147,23 @@ export default function UploadPage() {
           />
         </div>
 
-        {/* Upload Audio */}
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1">
-            Upload Track File (Audio)
-          </label>
-          <UploadButton
-            endpoint="audioUploader"
-            input={{ title, price: numericPrice, genre: finalGenre }}
-            onClientUploadComplete={(res) => {
-              console.log('Audio uploaded:', res);
-              const url = res?.[0]?.ufsUrl;
-              if (!url) return alert('Audio upload failed: no URL returned');
-              setAudioUrl(url);
-            }}
-            onUploadError={(err) => {
-              console.error('Audio upload error:', err);
-              alert('Audio upload failed.');
-            }}
-            appearance={{
-              button: 'bg-black text-white px-4 py-2 rounded hover:bg-zinc-800 transition text-sm',
-              container: 'w-full mt-2 text-black',
-            }}
+          <label className="block text-sm font-medium text-zinc-700 mb-1">Audio File</label>
+          <input
+            type="file"
+            accept="audio/*"
+            onChange={(e) => setAudioFile(e.target.files?.[0] || null)}
+            className="w-full border border-zinc-300 rounded px-3 py-2 text-sm text-black"
           />
         </div>
 
-        {/* Upload Image */}
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1">
-            Upload Album Cover (Image)
-          </label>
-          <UploadButton
-            endpoint="imageUploader"
-            input={{ title, price: numericPrice, genre: finalGenre }}
-            onClientUploadComplete={(res) => {
-              console.log('Image uploaded:', res);
-              const url = res?.[0]?.ufsUrl;
-              if (!url) return alert('Image upload failed: no URL returned');
-              setImageUrl(url);
-            }}
-            onUploadError={(err) => {
-              console.error('Image upload error:', err);
-              alert('Image upload failed.');
-            }}
-            appearance={{
-              button: 'bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-sm',
-              container: 'w-full mt-2 text-black',
-            }}
+          <label className="block text-sm font-medium text-zinc-700 mb-1">Album Cover (optional)</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+            className="w-full border border-zinc-300 rounded px-3 py-2 text-sm text-black"
           />
         </div>
 
