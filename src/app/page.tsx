@@ -24,7 +24,7 @@ export default function HomePage() {
           href="/tracks"
           className="inline-block bg-green-500 hover:bg-green-400 text-black font-bold py-2 px-6 rounded-md transition-all duration-200 shadow-md font-mono"
         >
-          Browse Tracks →
+          Browse Tracks! →
         </Link>
 
         <p className="text-zinc-500 text-xs font-mono mt-4">
