@@ -34,48 +34,28 @@ export default function UploadPage() {
         genre: finalGenre,
       };
 
-      // Upload audio
+      // Upload audio — creates track in DB
       const audioRes = await uploadFiles('audioUploader', {
         files: [audioFile!],
         input,
       });
 
       const audioUrl = audioRes?.[0]?.ufsUrl ?? audioRes?.[0]?.url;
-      if (!audioUrl) throw new Error('Audio upload failed: No URL returned');
+      if (!audioUrl) throw new Error('Audio upload failed');
 
-      // Upload image
-      let imageUrl = '/default-track.jpg';
+      // Upload image — updates existing track
       if (imageFile) {
         const imageRes = await uploadFiles('imageUploader', {
           files: [imageFile],
           input,
         });
 
-        imageUrl = imageRes?.[0]?.ufsUrl ?? imageRes?.[0]?.url;
-        if (!imageUrl) throw new Error('Image upload failed: No URL returned');
+        const imageUrl = imageRes?.[0]?.ufsUrl ?? imageRes?.[0]?.url;
+        if (!imageUrl) throw new Error('Image upload failed');
       }
 
-      // Save to DB
-      const res = await fetch('/api/tracks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title,
-          price: parseFloat(price),
-          genre: finalGenre,
-          fileUrl: audioUrl,
-          imageUrl,
-        }),
-      });
-
-      const data = await res.json();
-      console.log('[UPLOAD_PAGE] Track saved response:', data);
-
-      if (res.ok) {
-        router.push('/store');
-      } else {
-        alert(`Failed to save track: ${data?.error || 'Unknown error'}`);
-      }
+      // No manual API call needed — UploadThing handles everything
+      router.push('/store');
     } catch (err) {
       console.error('[UPLOAD_PAGE] Upload error:', err);
       alert('Something went wrong during upload.');
