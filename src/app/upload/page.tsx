@@ -40,13 +40,10 @@ export default function UploadPage() {
         input,
       });
 
-      if (!audioRes?.[0]?.url) {
-        throw new Error('Audio upload failed.');
-      }
+      const audioUrl = audioRes?.[0]?.ufsUrl ?? audioRes?.[0]?.url;
+      if (!audioUrl) throw new Error('Audio upload failed: No URL returned');
 
-      const audioUrl = audioRes[0].url;
-
-      // Upload image (if selected)
+      // Upload image
       let imageUrl = '/default-track.jpg';
       if (imageFile) {
         const imageRes = await uploadFiles('imageUploader', {
@@ -54,13 +51,11 @@ export default function UploadPage() {
           input,
         });
 
-        if (!imageRes?.[0]?.url) {
-          throw new Error('Image upload failed.');
-        }
-
-        imageUrl = imageRes[0].url;
+        imageUrl = imageRes?.[0]?.ufsUrl ?? imageRes?.[0]?.url;
+        if (!imageUrl) throw new Error('Image upload failed: No URL returned');
       }
 
+      // Save to DB
       const res = await fetch('/api/tracks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -74,6 +69,7 @@ export default function UploadPage() {
       });
 
       const data = await res.json();
+      console.log('[UPLOAD_PAGE] Track saved response:', data);
 
       if (res.ok) {
         router.push('/store');
@@ -81,7 +77,7 @@ export default function UploadPage() {
         alert(`Failed to save track: ${data?.error || 'Unknown error'}`);
       }
     } catch (err) {
-      console.error('Upload error:', err);
+      console.error('[UPLOAD_PAGE] Upload error:', err);
       alert('Something went wrong during upload.');
     } finally {
       setUploading(false);
