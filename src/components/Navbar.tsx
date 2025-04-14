@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useSession, signIn, signOut } from "next-auth/react";
 
 const links = [
-  { href: "/tracks", label: "Store" },
+  { href: "/store", label: "Store" },
   { href: "/upload", label: "Upload" },
   { href: "/account", label: "Account" },
   { href: "/cart", label: "Cart" },

@@ -3,8 +3,12 @@
 import { useState } from 'react';
 import { UploadButton } from '@/utils/uploadthingClient';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 export default function UploadPage() {
+  const { data: session } = useSession();
+  const router = useRouter();
+
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
   const [genre, setGenre] = useState('');
@@ -12,38 +16,58 @@ export default function UploadPage() {
   const [audioUrl, setAudioUrl] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [uploading, setUploading] = useState(false);
-  const router = useRouter();
 
   const finalGenre = customGenre || genre;
   const isValid = title && price && finalGenre && audioUrl;
 
   const handleSubmit = async () => {
     if (!isValid) return alert('Missing fields');
-
     setUploading(true);
 
-    const res = await fetch('/api/tracks', {
-      method: 'POST',
-      body: JSON.stringify({
-        title,
-        price: parseFloat(price),
-        genre: finalGenre,
-        fileUrl: audioUrl,
-        imageUrl: imageUrl || '/default-track.jpg',
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    try {
+      const res = await fetch('/api/tracks', {
+        method: 'POST',
+        body: JSON.stringify({
+          title,
+          price: parseFloat(price),
+          genre: finalGenre,
+          fileUrl: audioUrl,
+          imageUrl: imageUrl || '/default-track.jpg',
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-    setUploading(false);
+      const data = await res.json();
+      console.log('Save track response:', data);
 
-    if (res.ok) {
-      router.push('/tracks');
-    } else {
-      alert('Failed to save track.');
+      if (res.ok) {
+        router.push('/store');
+      } else {
+        alert('Failed to save track: ' + (data?.error || 'Unknown error'));
+      }
+    } catch (err) {
+      console.error('Submit error:', err);
+      alert('Something went wrong!');
+    } finally {
+      setUploading(false);
     }
   };
+
+  // If user is NOT logged in
+  if (!session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-center px-4">
+        <div className="max-w-md">
+          <h1 className="text-xl font-semibold mb-4">Please log in to upload a track.</h1>
+          <p className="text-zinc-600">
+            You need to be signed in to upload music to the store.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4 py-16">
