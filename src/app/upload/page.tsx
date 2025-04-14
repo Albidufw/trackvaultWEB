@@ -13,6 +13,7 @@ export default function UploadPage() {
   const router = useRouter();
 
   const finalGenre = customGenre || genre;
+  const isValid = title && price && finalGenre;
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4 py-16">
@@ -62,28 +63,23 @@ export default function UploadPage() {
           />
         </div>
 
+        {/* Upload Track (Audio only) */}
         <div>
-          <label className="text-sm font-medium text-zinc-700 block mb-1">Upload Track & Cover</label>
-
-            <UploadButton
+          <label className="text-sm font-medium text-zinc-700 block mb-1">Upload Track File (Audio)</label>
+          <UploadButton
             endpoint="trackUploader"
             input={{
               title,
               price: Number(price),
               genre: finalGenre,
             }}
-            onClientUploadComplete={(res) => {
-              console.log('Upload complete!', res);
+            onClientUploadComplete={() => {
               setUploadComplete(true);
-              setTitle('');
-              setPrice('');
-              setGenre('');
-              setCustomGenre('');
-              router.push('/tracks');
+              if (uploadComplete) router.push("/tracks");
             }}
             onUploadError={(error: Error) => {
-              console.error('Upload error:', error);
-              alert('Upload failed!');
+              console.error('Upload error (track):', error);
+              alert('Track upload failed!');
             }}
             appearance={{
               button: 'bg-black text-white px-4 py-2 rounded hover:bg-zinc-800 transition text-sm',
@@ -92,9 +88,34 @@ export default function UploadPage() {
           />
         </div>
 
+        {/* Upload Cover Image (Image only) */}
+        <div>
+          <label className="text-sm font-medium text-zinc-700 block mb-1">Upload Album Cover (Image)</label>
+          <UploadButton
+            endpoint="trackUploader"
+            input={{
+              title,
+              price: Number(price),
+              genre: finalGenre,
+            }}
+            onClientUploadComplete={() => {
+              setUploadComplete(true);
+              if (uploadComplete) router.push("/tracks");
+            }}
+            onUploadError={(error: Error) => {
+              console.error('Upload error (cover):', error);
+              alert('Cover upload failed!');
+            }}
+            appearance={{
+              button: 'bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-sm',
+              container: 'w-full mt-2',
+            }}
+          />
+        </div>
+
         {uploadComplete && (
           <p className="text-green-600 text-sm text-center">
-            Your track has been uploaded!
+            Upload complete! Redirecting to store...
           </p>
         )}
       </div>
