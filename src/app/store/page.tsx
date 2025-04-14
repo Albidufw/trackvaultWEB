@@ -30,7 +30,12 @@ export default function TracksPage() {
   useEffect(() => {
     const fetchTracks = async () => {
       try {
-        const res = await fetch('/api/tracks');
+        const res = await fetch('/api/tracks', {
+          method: 'GET',
+          cache: 'no-store', // prevent stale data in production
+          next: { revalidate: 10 }, // optional, to revalidate every 10 seconds
+        });
+
         const data = await res.json();
         setTracks(data.tracks);
         setFiltered(data.tracks);
@@ -126,7 +131,9 @@ export default function TracksPage() {
                 <div className="relative z-10 h-full flex flex-col justify-between p-4 text-white">
                   <div>
                     <h3 className="text-lg font-bold truncate">{track.title}</h3>
-                    <p className="text-sm text-gray-200 mb-1">${Number(track.price).toFixed(2)}</p>
+                    <p className="text-sm text-gray-200 mb-1">
+                      ${Number(track.price).toFixed(2)}
+                    </p>
                     {track.genre && (
                       <span className="inline-block bg-white/20 text-xs px-2 py-1 rounded">
                         {track.genre}

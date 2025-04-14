@@ -34,9 +34,7 @@ export default function UploadPage() {
           fileUrl: audioUrl,
           imageUrl: imageUrl || '/default-track.jpg',
         }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
       });
 
       const data = await res.json();
@@ -55,7 +53,6 @@ export default function UploadPage() {
     }
   };
 
-  // If user is NOT logged in
   if (!session) {
     return (
       <div className="min-h-screen flex items-center justify-center text-center px-4">
@@ -117,7 +114,7 @@ export default function UploadPage() {
           />
         </div>
 
-        {/* Upload track */}
+        {/* Upload track file */}
         <div>
           <label className="block text-sm font-medium text-zinc-700 mb-1">
             Upload Track File (Audio)
@@ -127,9 +124,9 @@ export default function UploadPage() {
             input={{ title, price: Number(price), genre: finalGenre }}
             onClientUploadComplete={(res) => {
               const url = res?.[0]?.url;
-              console.log('Audio uploaded:', url);
               if (!url) return alert('Audio upload failed: no URL returned');
               setAudioUrl(url);
+              console.log('Audio uploaded:', url);
             }}
             onUploadError={(err) => {
               console.error('Audio upload error:', err);
@@ -152,9 +149,9 @@ export default function UploadPage() {
             input={{ title, price: Number(price), genre: finalGenre }}
             onClientUploadComplete={(res) => {
               const url = res?.[0]?.url;
-              console.log('Image uploaded:', url);
               if (!url) return alert('Image upload failed: no URL returned');
               setImageUrl(url);
+              console.log('Image uploaded:', url);
             }}
             onUploadError={(err) => {
               console.error('Image upload error:', err);

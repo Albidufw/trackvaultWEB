@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     const track = await prisma.track.create({
       data: {
         title,
-        price,
+        price: parseFloat(price),
         genre,
         fileUrl,
         imageUrl,
