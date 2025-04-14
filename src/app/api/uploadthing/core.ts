@@ -19,7 +19,8 @@ export const ourFileRouter = {
       const session = await getServerSession(authOptions);
       const email = session?.user?.email;
       if (!email) throw new Error("Unauthorized");
-      return { userEmail: email, input }; // pass `input` into metadata
+
+      return { userEmail: email, input };
     })
     .onUploadComplete(async ({ metadata, file }) => {
       const { userEmail, input } = metadata;
@@ -29,22 +30,39 @@ export const ourFileRouter = {
       });
 
       if (!user) {
-        console.error("[UPLOADTHING] User not found:", userEmail);
+        console.error("[UPLOADTHING] User not found during audio upload:", userEmail);
         return;
       }
 
-      const track = await prisma.track.create({
-        data: {
-          title: input.title,
-          price: input.price,
-          genre: input.genre,
-          fileUrl: file.url,
-          imageUrl: null,
+      const existingTrack = await prisma.track.findFirst({
+        where: {
+          title: input.title.toLowerCase(),
           artistId: user.id,
         },
+        orderBy: { createdAt: "desc" },
       });
 
-      console.log("[UPLOADTHING] Audio uploaded and track created:", track.id);
+      const track = existingTrack
+        ? await prisma.track.update({
+            where: { id: existingTrack.id },
+            data: {
+              fileUrl: file.url,
+              price: input.price,
+              genre: input.genre,
+            },
+          })
+        : await prisma.track.create({
+            data: {
+              title: input.title.toLowerCase(),
+              price: input.price,
+              genre: input.genre,
+              fileUrl: file.url,
+              imageUrl: null,
+              artistId: user.id,
+            },
+          });
+
+      console.log("[UPLOADTHING] Audio upload complete. Track ID:", track.id);
       return { url: file.url };
     }),
 
@@ -54,7 +72,8 @@ export const ourFileRouter = {
       const session = await getServerSession(authOptions);
       const email = session?.user?.email;
       if (!email) throw new Error("Unauthorized");
-      return { userEmail: email, input }; // also here
+
+      return { userEmail: email, input };
     })
     .onUploadComplete(async ({ metadata, file }) => {
       const { userEmail, input } = metadata;
@@ -64,31 +83,31 @@ export const ourFileRouter = {
       });
 
       if (!user) {
-        console.error("[UPLOADTHING] User not found for image:", userEmail);
+        console.error("[UPLOADTHING] User not found during image upload:", userEmail);
         return;
       }
 
       const existingTrack = await prisma.track.findFirst({
         where: {
-          title: input.title,
+          title: input.title.toLowerCase(),
           artistId: user.id,
         },
         orderBy: { createdAt: "desc" },
       });
 
       if (!existingTrack) {
-        console.error("[UPLOADTHING] No matching track found for image upload");
+        console.error("[UPLOADTHING] No track found to attach image to:", input.title);
         return;
       }
 
-      const updated = await prisma.track.update({
+      const updatedTrack = await prisma.track.update({
         where: { id: existingTrack.id },
         data: {
           imageUrl: file.url,
         },
       });
 
-      console.log("[UPLOADTHING] Image added to track:", updated.id);
+      console.log("[UPLOADTHING] Image added to track:", updatedTrack.id);
       return { url: file.url };
     }),
 } satisfies FileRouter;

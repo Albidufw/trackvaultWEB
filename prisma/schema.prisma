@@ -8,30 +8,33 @@ generator client {
 }
 
 model User {
-  id             Int       @id @default(autoincrement())
-  name           String?
-  email          String?   @unique
-  image          String?
-  emailVerified  DateTime?
-  password       String?
-  stripeId       String?
-  tracks         Track[]
-  purchases      Purchase[]
-  accounts       Account[]
-  sessions       Session[]
+  id            Int        @id @default(autoincrement())
+  name          String?
+  email         String?    @unique
+  image         String?
+  emailVerified DateTime?
+  password      String?
+  stripeId      String?
+  tracks        Track[]
+  purchases     Purchase[]
+  accounts      Account[]
+  sessions      Session[]
 }
 
 model Track {
-  id         Int        @id @default(autoincrement())
-  title      String
-  fileUrl    String
-  imageUrl   String? 
-  price      Decimal
-  genre      String?
-  artist     User       @relation(fields: [artistId], references: [id], onDelete: Cascade)
-  artistId   Int
-  purchases  Purchase[]
-  createdAt  DateTime   @default(now())
+  id        Int      @id @default(autoincrement())
+  title     String
+  fileUrl   String
+  imageUrl  String?
+  price     Decimal
+  genre     String?
+  artist    User     @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  artistId  Int
+  createdAt DateTime @default(now())
+
+  purchases Purchase[]
+
+  @@unique([title, artistId], name: "uniqueTitlePerUser")
 }
 
 model Purchase {
