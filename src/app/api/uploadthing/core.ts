@@ -5,9 +5,9 @@ import prisma from "@/lib/prisma";
 import { z } from "zod";
 
 const trackInput = z.object({
-  title: z.string(),
-  price: z.number(),
-  genre: z.string(),
+  title: z.string().min(1),
+  price: z.number().positive(),
+  genre: z.string().min(1),
 });
 
 const f = createUploadthing();
@@ -15,24 +15,25 @@ const f = createUploadthing();
 export const ourFileRouter = {
   audioUploader: f(["audio"])
     .input(trackInput)
-    .middleware(async () => {
+    .middleware(async ({ input }) => {
       const session = await getServerSession(authOptions);
-      if (!session?.user?.email) throw new Error("Unauthorized");
-      return { userEmail: session.user.email };
+      const email = session?.user?.email;
+      if (!email) throw new Error("Unauthorized");
+      return { userEmail: email, input }; // pass `input` into metadata
     })
-    .onUploadComplete(async (ctx) => {
-      const { metadata, file, input } = ctx as any;
+    .onUploadComplete(async ({ metadata, file }) => {
+      const { userEmail, input } = metadata;
 
       const user = await prisma.user.findUnique({
-        where: { email: metadata.userEmail },
+        where: { email: userEmail },
       });
 
       if (!user) {
-        console.error("User not found");
+        console.error("[UPLOADTHING] User not found:", userEmail);
         return;
       }
 
-      await prisma.track.create({
+      const track = await prisma.track.create({
         data: {
           title: input.title,
           price: input.price,
@@ -43,28 +44,27 @@ export const ourFileRouter = {
         },
       });
 
-      console.log("Audio uploaded and track created in DB");
-
-      //return the URL so frontend gets it
+      console.log("[UPLOADTHING] Audio uploaded and track created:", track.id);
       return { url: file.url };
     }),
 
   imageUploader: f(["image"])
     .input(trackInput)
-    .middleware(async () => {
+    .middleware(async ({ input }) => {
       const session = await getServerSession(authOptions);
-      if (!session?.user?.email) throw new Error("Unauthorized");
-      return { userEmail: session.user.email };
+      const email = session?.user?.email;
+      if (!email) throw new Error("Unauthorized");
+      return { userEmail: email, input }; // also here
     })
-    .onUploadComplete(async (ctx) => {
-      const { metadata, file, input } = ctx as any;
+    .onUploadComplete(async ({ metadata, file }) => {
+      const { userEmail, input } = metadata;
 
       const user = await prisma.user.findUnique({
-        where: { email: metadata.userEmail },
+        where: { email: userEmail },
       });
 
       if (!user) {
-        console.error("User not found");
+        console.error("[UPLOADTHING] User not found for image:", userEmail);
         return;
       }
 
@@ -73,23 +73,22 @@ export const ourFileRouter = {
           title: input.title,
           artistId: user.id,
         },
+        orderBy: { createdAt: "desc" },
       });
 
       if (!existingTrack) {
-        console.error("Matching track not found for image update");
+        console.error("[UPLOADTHING] No matching track found for image upload");
         return;
       }
 
-      await prisma.track.update({
+      const updated = await prisma.track.update({
         where: { id: existingTrack.id },
         data: {
           imageUrl: file.url,
         },
       });
 
-      console.log("Image uploaded and track updated in DB");
-
-      //Return URL for the frontend
+      console.log("[UPLOADTHING] Image added to track:", updated.id);
       return { url: file.url };
     }),
 } satisfies FileRouter;

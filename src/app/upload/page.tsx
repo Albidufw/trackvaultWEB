@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { UploadButton } from '@/utils/uploadthingClient';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 
 export default function UploadPage() {
   const { data: session } = useSession();
@@ -21,12 +21,17 @@ export default function UploadPage() {
   const isValid = title && price && finalGenre && audioUrl;
 
   const handleSubmit = async () => {
-    if (!isValid) return alert('Missing fields');
+    if (!isValid) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
     setUploading(true);
 
     try {
       const res = await fetch('/api/tracks', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title,
           price: parseFloat(price),
@@ -34,33 +39,31 @@ export default function UploadPage() {
           fileUrl: audioUrl,
           imageUrl: imageUrl || '/default-track.jpg',
         }),
-        headers: { 'Content-Type': 'application/json' },
       });
 
       const data = await res.json();
-      console.log('Save track response:', data);
+      console.log('Track saved response:', data);
 
       if (res.ok) {
         router.push('/store');
       } else {
-        alert('Failed to save track: ' + (data?.error || 'Unknown error'));
+        alert(`Failed to save track: ${data?.error || 'Unknown error'}`);
       }
     } catch (err) {
-      console.error('Submit error:', err);
-      alert('Something went wrong!');
+      console.error('Track upload error:', err);
+      alert('Something went wrong during upload.');
     } finally {
       setUploading(false);
     }
   };
 
+  // If user is not logged in
   if (!session) {
     return (
       <div className="min-h-screen flex items-center justify-center text-center px-4">
         <div className="max-w-md">
           <h1 className="text-xl font-semibold mb-4">Please log in to upload a track.</h1>
-          <p className="text-zinc-600">
-            You need to be signed in to upload music to the store.
-          </p>
+          <p className="text-zinc-600">You must be signed in to upload music to the store.</p>
         </div>
       </div>
     );
@@ -71,6 +74,7 @@ export default function UploadPage() {
       <div className="max-w-md w-full space-y-6">
         <h1 className="text-2xl font-semibold text-center">Upload a Track</h1>
 
+        {/* Title */}
         <input
           type="text"
           placeholder="Track Title"
@@ -79,6 +83,7 @@ export default function UploadPage() {
           className="w-full border border-zinc-300 rounded px-4 py-2 text-sm text-black"
         />
 
+        {/* Price */}
         <input
           type="number"
           placeholder="Price ($)"
@@ -87,6 +92,7 @@ export default function UploadPage() {
           className="w-full border border-zinc-300 rounded px-4 py-2 text-sm text-black"
         />
 
+        {/* Genre */}
         <div>
           <label className="text-sm font-medium text-zinc-700 block mb-1">Genre</label>
           <select
@@ -114,23 +120,23 @@ export default function UploadPage() {
           />
         </div>
 
-        {/* Upload track file */}
+        {/* Upload Audio */}
         <div>
           <label className="block text-sm font-medium text-zinc-700 mb-1">
             Upload Track File (Audio)
           </label>
           <UploadButton
             endpoint="audioUploader"
-            input={{ title, price: Number(price), genre: finalGenre }}
+            input={{ title, price: parseFloat(price), genre: finalGenre }}
             onClientUploadComplete={(res) => {
+              console.log('Audio uploaded:', res);
               const url = res?.[0]?.url;
               if (!url) return alert('Audio upload failed: no URL returned');
               setAudioUrl(url);
-              console.log('Audio uploaded:', url);
             }}
             onUploadError={(err) => {
               console.error('Audio upload error:', err);
-              alert('Audio upload failed');
+              alert('Audio upload failed.');
             }}
             appearance={{
               button: 'bg-black text-white px-4 py-2 rounded hover:bg-zinc-800 transition text-sm',
@@ -139,23 +145,23 @@ export default function UploadPage() {
           />
         </div>
 
-        {/* Upload image */}
+        {/* Upload Image */}
         <div>
           <label className="block text-sm font-medium text-zinc-700 mb-1">
             Upload Album Cover (Image)
           </label>
           <UploadButton
             endpoint="imageUploader"
-            input={{ title, price: Number(price), genre: finalGenre }}
+            input={{ title, price: parseFloat(price), genre: finalGenre }}
             onClientUploadComplete={(res) => {
+              console.log('Image uploaded:', res);
               const url = res?.[0]?.url;
               if (!url) return alert('Image upload failed: no URL returned');
               setImageUrl(url);
-              console.log('Image uploaded:', url);
             }}
             onUploadError={(err) => {
               console.error('Image upload error:', err);
-              alert('Image upload failed');
+              alert('Image upload failed.');
             }}
             appearance={{
               button: 'bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-sm',
@@ -164,10 +170,15 @@ export default function UploadPage() {
           />
         </div>
 
+        {/* Submit Button */}
         <button
           onClick={handleSubmit}
           disabled={!isValid || uploading}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition text-sm font-medium disabled:opacity-50"
+          className={`w-full text-white py-2 rounded text-sm font-medium transition ${
+            !isValid || uploading
+              ? 'bg-blue-400 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-700'
+          }`}
         >
           {uploading ? 'Saving...' : 'Save Track'}
         </button>
