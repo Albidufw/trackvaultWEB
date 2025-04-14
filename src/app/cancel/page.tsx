@@ -6,7 +6,7 @@ export default function CancelPage() {
           Your checkout was canceled. You can always try again.
         </p>
         <a
-          href="/tracks"
+          href="/store"
           className="px-6 py-2 bg-black text-white rounded hover:bg-zinc-800 transition"
         >
           Back to Store
