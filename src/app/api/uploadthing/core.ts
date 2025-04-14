@@ -21,21 +21,7 @@ export const ourFileRouter = {
       return { userEmail: session.user.email };
     })
     .onUploadComplete(async (ctx) => {
-      const { metadata, file, input } = ctx as unknown as {
-        metadata: { userEmail: string };
-        file: {
-          url: string;
-          name: string;
-          size: number;
-          key: string;
-          type: string;
-        };
-        input: {
-          title: string;
-          price: number;
-          genre: string;
-        };
-      };
+      const { metadata, file, input } = ctx as any;
 
       const user = await prisma.user.findUnique({
         where: { email: metadata.userEmail },
@@ -58,6 +44,9 @@ export const ourFileRouter = {
       });
 
       console.log("Audio uploaded and track created in DB");
+
+      //return the URL so frontend gets it
+      return { url: file.url };
     }),
 
   imageUploader: f(["image"])
@@ -68,21 +57,7 @@ export const ourFileRouter = {
       return { userEmail: session.user.email };
     })
     .onUploadComplete(async (ctx) => {
-      const { metadata, file, input } = ctx as unknown as {
-        metadata: { userEmail: string };
-        file: {
-          url: string;
-          name: string;
-          size: number;
-          key: string;
-          type: string;
-        };
-        input: {
-          title: string;
-          price: number;
-          genre: string;
-        };
-      };
+      const { metadata, file, input } = ctx as any;
 
       const user = await prisma.user.findUnique({
         where: { email: metadata.userEmail },
@@ -113,6 +88,9 @@ export const ourFileRouter = {
       });
 
       console.log("Image uploaded and track updated in DB");
+
+      //Return URL for the frontend
+      return { url: file.url };
     }),
 } satisfies FileRouter;
 
