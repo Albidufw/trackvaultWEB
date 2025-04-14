@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { UploadButton } from "@/utils/uploadthingClient";
+import { UploadButton } from '@/utils/uploadthingClient';
 import { useRouter } from 'next/navigation';
 
 export default function UploadPage() {
@@ -9,11 +9,41 @@ export default function UploadPage() {
   const [price, setPrice] = useState('');
   const [genre, setGenre] = useState('');
   const [customGenre, setCustomGenre] = useState('');
-  const [uploadComplete, setUploadComplete] = useState(false);
+  const [audioUrl, setAudioUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
   const router = useRouter();
 
   const finalGenre = customGenre || genre;
-  const isValid = title && price && finalGenre;
+  const isValid = title && price && finalGenre && audioUrl;
+
+  const handleSubmit = async () => {
+    if (!isValid) return alert('Missing fields');
+
+    setUploading(true);
+
+    const res = await fetch('/api/tracks', {
+      method: 'POST',
+      body: JSON.stringify({
+        title,
+        price: parseFloat(price),
+        genre: finalGenre,
+        fileUrl: audioUrl,
+        imageUrl: imageUrl || '/default-track.jpg',
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    setUploading(false);
+
+    if (res.ok) {
+      router.push('/tracks');
+    } else {
+      alert('Failed to save track.');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4 py-16">
@@ -63,61 +93,49 @@ export default function UploadPage() {
           />
         </div>
 
-        {/* Upload Track (Audio only) */}
+        {/* Upload track */}
         <div>
-          <label className="text-sm font-medium text-zinc-700 block mb-1">Upload Track File (Audio)</label>
-          <UploadButton
-            endpoint="trackUploader"
+          <label className="block text-sm font-medium text-zinc-700 mb-1">
+            Upload Track File (Audio)
+          </label>
+            <UploadButton
+            endpoint="audioUploader"
             input={{
-              title,
-              price: Number(price),
-              genre: finalGenre,
+                title,
+                price: Number(price),
+                genre: finalGenre,
             }}
-            onClientUploadComplete={() => {
-              setUploadComplete(true);
-              if (uploadComplete) router.push("/tracks");
+            onClientUploadComplete={(res) => {
+                console.log("Audio uploaded", res);
             }}
-            onUploadError={(error: Error) => {
-              console.error('Upload error (track):', error);
-              alert('Track upload failed!');
+            onUploadError={(err) => {
+                console.error("Audio upload error:", err);
             }}
-            appearance={{
-              button: 'bg-black text-white px-4 py-2 rounded hover:bg-zinc-800 transition text-sm',
-              container: 'w-full mt-2',
+            />
+
+            <UploadButton
+            endpoint="imageUploader"
+            input={{
+                title,
+                price: Number(price),
+                genre: finalGenre,
             }}
-          />
+            onClientUploadComplete={(res) => {
+                console.log("Image uploaded", res);
+            }}
+            onUploadError={(err) => {
+                console.error("Image upload error:", err);
+            }}
+            />
         </div>
 
-        {/* Upload Cover Image (Image only) */}
-        <div>
-          <label className="text-sm font-medium text-zinc-700 block mb-1">Upload Album Cover (Image)</label>
-          <UploadButton
-            endpoint="trackUploader"
-            input={{
-              title,
-              price: Number(price),
-              genre: finalGenre,
-            }}
-            onClientUploadComplete={() => {
-              setUploadComplete(true);
-              if (uploadComplete) router.push("/tracks");
-            }}
-            onUploadError={(error: Error) => {
-              console.error('Upload error (cover):', error);
-              alert('Cover upload failed!');
-            }}
-            appearance={{
-              button: 'bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-sm',
-              container: 'w-full mt-2',
-            }}
-          />
-        </div>
-
-        {uploadComplete && (
-          <p className="text-green-600 text-sm text-center">
-            ✅ Upload complete! Redirecting to store...
-          </p>
-        )}
+        <button
+          onClick={handleSubmit}
+          disabled={!isValid || uploading}
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition text-sm font-medium disabled:opacity-50"
+        >
+          {uploading ? 'Saving...' : 'Save Track'}
+        </button>
       </div>
     </div>
   );
