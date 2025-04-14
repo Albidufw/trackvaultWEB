@@ -95,38 +95,46 @@ export default function UploadPage() {
 
         {/* Upload track */}
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1">
-            Upload Track File (Audio)
-          </label>
-            <UploadButton
+          <label className="block text-sm font-medium text-zinc-700 mb-1">Upload Track File (Audio)</label>
+          <UploadButton
             endpoint="audioUploader"
-            input={{
-                title,
-                price: Number(price),
-                genre: finalGenre,
-            }}
+            input={{ title, price: Number(price), genre: finalGenre }}
             onClientUploadComplete={(res) => {
-                console.log("Audio uploaded", res);
+              console.log("Audio uploaded", res);
+              if (res && res.length > 0) {
+                setAudioUrl(res[0].url);
+              }
             }}
             onUploadError={(err) => {
-                console.error("Audio upload error:", err);
+              console.error("Audio upload error:", err);
             }}
-            />
+            appearance={{
+              button: 'bg-black text-white px-4 py-2 rounded hover:bg-zinc-800 transition text-sm',
+              container: 'w-full mt-2 text-black',
+            }}
+          />
+        </div>
 
-            <UploadButton
+        {/* Upload image */}
+        <div>
+          <label className="block text-sm font-medium text-zinc-700 mb-1">Upload Album Cover (Image)</label>
+          <UploadButton
             endpoint="imageUploader"
-            input={{
-                title,
-                price: Number(price),
-                genre: finalGenre,
-            }}
+            input={{ title, price: Number(price), genre: finalGenre }}
             onClientUploadComplete={(res) => {
-                console.log("Image uploaded", res);
+              console.log("Image uploaded", res);
+              if (res && res.length > 0) {
+                setImageUrl(res[0].url);
+              }
             }}
             onUploadError={(err) => {
-                console.error("Image upload error:", err);
+              console.error("Image upload error:", err);
             }}
-            />
+            appearance={{
+              button: 'bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-sm',
+              container: 'w-full mt-2 text-black',
+            }}
+          />
         </div>
 
         <button
