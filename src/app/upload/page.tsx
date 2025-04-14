@@ -18,6 +18,7 @@ export default function UploadPage() {
   const [uploading, setUploading] = useState(false);
 
   const finalGenre = customGenre || genre;
+  const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
   const isValid = title && price && finalGenre && audioUrl;
 
   const handleSubmit = async () => {
@@ -34,7 +35,7 @@ export default function UploadPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title,
-          price: parseFloat(price),
+          price: numericPrice,
           genre: finalGenre,
           fileUrl: audioUrl,
           imageUrl: imageUrl || '/default-track.jpg',
@@ -44,10 +45,10 @@ export default function UploadPage() {
       const data = await res.json();
       console.log('Track saved response:', data);
 
-      if (res.ok) {
-        router.push('/store');
-      } else {
+      if (!res.ok) {
         alert(`Failed to save track: ${data?.error || 'Unknown error'}`);
+      } else {
+        router.push('/store');
       }
     } catch (err) {
       console.error('Track upload error:', err);
@@ -57,7 +58,6 @@ export default function UploadPage() {
     }
   };
 
-  // If user is not logged in
   if (!session) {
     return (
       <div className="min-h-screen flex items-center justify-center text-center px-4">
@@ -74,7 +74,6 @@ export default function UploadPage() {
       <div className="max-w-md w-full space-y-6">
         <h1 className="text-2xl font-semibold text-center">Upload a Track</h1>
 
-        {/* Title */}
         <input
           type="text"
           placeholder="Track Title"
@@ -83,7 +82,6 @@ export default function UploadPage() {
           className="w-full border border-zinc-300 rounded px-4 py-2 text-sm text-black"
         />
 
-        {/* Price */}
         <input
           type="number"
           placeholder="Price ($)"
@@ -92,7 +90,6 @@ export default function UploadPage() {
           className="w-full border border-zinc-300 rounded px-4 py-2 text-sm text-black"
         />
 
-        {/* Genre */}
         <div>
           <label className="text-sm font-medium text-zinc-700 block mb-1">Genre</label>
           <select
@@ -127,10 +124,10 @@ export default function UploadPage() {
           </label>
           <UploadButton
             endpoint="audioUploader"
-            input={{ title, price: parseFloat(price), genre: finalGenre }}
+            input={{ title, price: numericPrice, genre: finalGenre }}
             onClientUploadComplete={(res) => {
               console.log('Audio uploaded:', res);
-              const url = res?.[0]?.url;
+              const url = res?.[0]?.ufsUrl;
               if (!url) return alert('Audio upload failed: no URL returned');
               setAudioUrl(url);
             }}
@@ -152,10 +149,10 @@ export default function UploadPage() {
           </label>
           <UploadButton
             endpoint="imageUploader"
-            input={{ title, price: parseFloat(price), genre: finalGenre }}
+            input={{ title, price: numericPrice, genre: finalGenre }}
             onClientUploadComplete={(res) => {
               console.log('Image uploaded:', res);
-              const url = res?.[0]?.url;
+              const url = res?.[0]?.ufsUrl;
               if (!url) return alert('Image upload failed: no URL returned');
               setImageUrl(url);
             }}
@@ -170,7 +167,6 @@ export default function UploadPage() {
           />
         </div>
 
-        {/* Submit Button */}
         <button
           onClick={handleSubmit}
           disabled={!isValid || uploading}

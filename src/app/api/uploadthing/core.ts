@@ -46,7 +46,7 @@ export const ourFileRouter = {
         ? await prisma.track.update({
             where: { id: existingTrack.id },
             data: {
-              fileUrl: file.url,
+              fileUrl: file.ufsUrl,
               price: input.price,
               genre: input.genre,
             },
@@ -56,14 +56,14 @@ export const ourFileRouter = {
               title: input.title.toLowerCase(),
               price: input.price,
               genre: input.genre,
-              fileUrl: file.url,
+              fileUrl: file.ufsUrl,
               imageUrl: null,
               artistId: user.id,
             },
           });
 
       console.log("[UPLOADTHING] Audio upload complete. Track ID:", track.id);
-      return { url: file.url };
+      return { url: file.ufsUrl };
     }),
 
   imageUploader: f(["image"])
@@ -103,12 +103,12 @@ export const ourFileRouter = {
       const updatedTrack = await prisma.track.update({
         where: { id: existingTrack.id },
         data: {
-          imageUrl: file.url,
+          imageUrl: file.ufsUrl,
         },
       });
 
       console.log("[UPLOADTHING] Image added to track:", updatedTrack.id);
-      return { url: file.url };
+      return { url: file.ufsUrl };
     }),
 } satisfies FileRouter;
 
