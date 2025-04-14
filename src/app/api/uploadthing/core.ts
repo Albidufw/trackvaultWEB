@@ -6,16 +6,13 @@ import { generateUploadButton } from "@uploadthing/react";
 const f = createUploadthing();
 
 export const ourFileRouter = {
-  trackUploader: f({
-    image: { maxFileSize: "4MB" },
-    audio: { maxFileSize: "16MB" },
-  })
+  trackUploader: f(["image", "audio"]) // ✅ Correct way
     .middleware(async () => {
       const session = await getServerSession(authOptions);
       if (!session?.user?.email) throw new Error("Unauthorized");
       return { userEmail: session.user.email };
     })
-    .onUploadComplete(async ({ metadata, file }: { metadata: { userEmail: string }, file: { url: string; name: string } }) => {
+    .onUploadComplete(async ({ metadata, file }) => {
       console.log("Upload complete!");
       console.log("File:", file);
       console.log("Uploaded by:", metadata.userEmail);
