@@ -6,7 +6,7 @@ import { generateUploadButton } from "@uploadthing/react";
 const f = createUploadthing();
 
 export const ourFileRouter = {
-  trackUploader: f(["image", "audio"]) // ✅ Correct way
+  trackUploader: f(["image", "audio"])
     .middleware(async () => {
       const session = await getServerSession(authOptions);
       if (!session?.user?.email) throw new Error("Unauthorized");
