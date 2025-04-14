@@ -5,7 +5,6 @@ import prisma from '@/lib/prisma';
 
 export async function POST(req: Request) {
   try {
-    // Get session and verify user
     const session = await getServerSession(authOptions);
     const email = session?.user?.email;
 
@@ -24,30 +23,34 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
+    console.log('[TRACK_UPLOAD] Incoming body:', body);
+
     const { title, price, genre, fileUrl, imageUrl } = body;
 
-    // Basic field validation
     if (!title || !price || !genre || !fileUrl) {
+      console.warn('[TRACK_UPLOAD] Missing field(s):', { title, price, genre, fileUrl });
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const track = await prisma.track.create({
       data: {
         title: String(title),
-        price: parseFloat(price),
+        price: typeof price === 'number' ? price : parseFloat(price),
         genre: String(genre),
         fileUrl: String(fileUrl),
-        imageUrl: imageUrl || '/default-track.jpg',
+        imageUrl: imageUrl ? String(imageUrl) : '/default-track.jpg',
         artistId: user.id,
       },
     });
 
+    console.log('[TRACK_UPLOAD] Track created with ID:', track.id); // <-- NEW log
     return NextResponse.json({ success: true, track });
   } catch (error) {
     console.error('[TRACK_UPLOAD] Error saving track:', error);
     return NextResponse.json({ error: 'Failed to save track' }, { status: 500 });
   }
 }
+
 
 export async function GET() {
   try {
