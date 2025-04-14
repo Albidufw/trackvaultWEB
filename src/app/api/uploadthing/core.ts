@@ -1,22 +1,27 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
-import { generateComponents } from "@uploadthing/react";
+import { generateUploadButton } from "@uploadthing/react";
 
 const f = createUploadthing();
 
 export const ourFileRouter = {
-  trackUploader: f({ image: { maxFileSize: "4MB" }, audio: { maxFileSize: "16MB" } })
+  trackUploader: f({
+    image: { maxFileSize: "4MB" },
+    audio: { maxFileSize: "16MB" },
+  })
     .middleware(async () => {
       const session = await getServerSession(authOptions);
       if (!session?.user?.email) throw new Error("Unauthorized");
       return { userEmail: session.user.email };
     })
-    .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Upload complete:", file);
+    .onUploadComplete(async ({ metadata, file }: { metadata: { userEmail: string }, file: { url: string; name: string } }) => {
+      console.log("Upload complete!");
+      console.log("File:", file);
+      console.log("Uploaded by:", metadata.userEmail);
     }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;
 
-export const { UploadButton, UploadDropzone, Uploader } = generateComponents<OurFileRouter>();
+export const UploadButton = generateUploadButton<OurFileRouter>();
