@@ -55,7 +55,7 @@ export default function UploadPage() {
           placeholder="Track Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full border border-zinc-300 rounded px-4 py-2 text-sm"
+          className="w-full border border-zinc-300 rounded px-4 py-2 text-sm text-black"
         />
 
         <input
@@ -63,7 +63,7 @@ export default function UploadPage() {
           placeholder="Price ($)"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
-          className="w-full border border-zinc-300 rounded px-4 py-2 text-sm"
+          className="w-full border border-zinc-300 rounded px-4 py-2 text-sm text-black"
         />
 
         <div>
@@ -71,7 +71,7 @@ export default function UploadPage() {
           <select
             value={genre}
             onChange={(e) => setGenre(e.target.value)}
-            className="w-full border border-zinc-300 rounded px-3 py-2 text-sm mb-2"
+            className="w-full border border-zinc-300 rounded px-3 py-2 text-sm mb-2 text-black"
           >
             <option value="">-- Choose genre --</option>
             <option value="rock">Rock</option>
@@ -89,24 +89,27 @@ export default function UploadPage() {
             placeholder="Or enter custom genre"
             value={customGenre}
             onChange={(e) => setCustomGenre(e.target.value)}
-            className="w-full border border-zinc-300 rounded px-3 py-2 text-sm"
+            className="w-full border border-zinc-300 rounded px-3 py-2 text-sm text-black"
           />
         </div>
 
         {/* Upload track */}
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1">Upload Track File (Audio)</label>
+          <label className="block text-sm font-medium text-zinc-700 mb-1">
+            Upload Track File (Audio)
+          </label>
           <UploadButton
             endpoint="audioUploader"
             input={{ title, price: Number(price), genre: finalGenre }}
             onClientUploadComplete={(res) => {
-              console.log("Audio uploaded", res);
-              if (res && res.length > 0) {
-                setAudioUrl(res[0].url);
-              }
+              const url = res?.[0]?.url;
+              console.log('Audio uploaded:', url);
+              if (!url) return alert('Audio upload failed: no URL returned');
+              setAudioUrl(url);
             }}
             onUploadError={(err) => {
-              console.error("Audio upload error:", err);
+              console.error('Audio upload error:', err);
+              alert('Audio upload failed');
             }}
             appearance={{
               button: 'bg-black text-white px-4 py-2 rounded hover:bg-zinc-800 transition text-sm',
@@ -117,18 +120,21 @@ export default function UploadPage() {
 
         {/* Upload image */}
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1">Upload Album Cover (Image)</label>
+          <label className="block text-sm font-medium text-zinc-700 mb-1">
+            Upload Album Cover (Image)
+          </label>
           <UploadButton
             endpoint="imageUploader"
             input={{ title, price: Number(price), genre: finalGenre }}
             onClientUploadComplete={(res) => {
-              console.log("Image uploaded", res);
-              if (res && res.length > 0) {
-                setImageUrl(res[0].url);
-              }
+              const url = res?.[0]?.url;
+              console.log('Image uploaded:', url);
+              if (!url) return alert('Image upload failed: no URL returned');
+              setImageUrl(url);
             }}
             onUploadError={(err) => {
-              console.error("Image upload error:", err);
+              console.error('Image upload error:', err);
+              alert('Image upload failed');
             }}
             appearance={{
               button: 'bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-sm',
