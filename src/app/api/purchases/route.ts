@@ -22,7 +22,11 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({ purchases: userWithPurchases?.purchases || [] });
+    if (!userWithPurchases) {
+      return NextResponse.json({ purchases: [] });
+    }
+    return NextResponse.json({ purchases: userWithPurchases.purchases });
+    
   } catch (error) {
     console.error("Error fetching purchases:", error);
     return NextResponse.json({ error: "Failed to fetch purchases" }, { status: 500 });
