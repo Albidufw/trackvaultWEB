@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import prisma from "@/lib/prisma";
-import Image from "next/image";
 
 export default async function AccountPage() {
   const session = await getServerSession(authOptions);
@@ -15,7 +14,9 @@ export default async function AccountPage() {
     include: {
       tracks: true,
       purchases: {
-        include: { track: true },
+        include: {
+          track: true,
+        },
       },
     },
   });
@@ -23,9 +24,6 @@ export default async function AccountPage() {
   if (!user) return <div className="p-6">User not found.</div>;
 
   const purchasedTracks = user.purchases.filter((p) => !!p.track);
-
-  const getValidImageUrl = (url: string | null | undefined) =>
-    url && url.startsWith("http") ? url : "/default-track.jpg";
 
   return (
     <div className="min-h-screen bg-white text-black p-8 max-w-6xl mx-auto">
@@ -57,11 +55,9 @@ export default async function AccountPage() {
                 key={track.id}
                 className="relative overflow-hidden rounded-lg shadow hover:shadow-lg transition transform hover:scale-[1.01]"
               >
-                <Image
-                  src={getValidImageUrl(track.imageUrl)}
+                <img
+                  src={track.imageUrl || "/default-track.jpg"}
                   alt={track.title}
-                  width={400}
-                  height={300}
                   className="w-full h-64 object-cover"
                 />
                 <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-3">
@@ -86,13 +82,12 @@ export default async function AccountPage() {
                 key={purchase.id}
                 className="relative overflow-hidden rounded-lg shadow hover:shadow-lg transition transform hover:scale-[1.01]"
               >
-                <Image
-                  src={getValidImageUrl(purchase.track.imageUrl)}
+                <img
+                  src={purchase.track.imageUrl || "/default-track.jpg"}
                   alt={purchase.track.title}
-                  width={400}
-                  height={300}
                   className="w-full h-64 object-cover"
                 />
+
                 <div className="absolute inset-0 bg-black/60 backdrop-blur-sm text-white p-4 flex flex-col justify-between">
                   <div>
                     <h3 className="font-bold text-base">{purchase.track.title}</h3>
@@ -113,7 +108,7 @@ export default async function AccountPage() {
                     <a
                       href={purchase.track.fileUrl}
                       download
-                      className="mt-3 block w-full text-center bg-white text-black text-sm font-medium py-2 rounded-md hover:bg-zinc-100 transition border border-zinc-300"
+                      className="mt-3 inline-block w-full text-center bg-white text-black font-medium text-sm py-2 rounded-md hover:bg-zinc-100 transition border border-zinc-300"
                     >
                       Download Track
                     </a>
