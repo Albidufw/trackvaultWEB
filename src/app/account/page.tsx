@@ -26,6 +26,10 @@ export default async function AccountPage() {
 
   const purchasedTracks = user.purchases.filter((p) => !!p.track);
 
+  // 👇 helper to validate image URLs
+  const getValidImageUrl = (url: string | null | undefined) =>
+    url && url.startsWith("http") ? url : "/default-track.jpg";
+
   return (
     <div className="min-h-screen bg-white text-black p-8 max-w-6xl mx-auto">
       {/* Header */}
@@ -57,7 +61,7 @@ export default async function AccountPage() {
                 className="relative overflow-hidden rounded-lg shadow hover:shadow-lg transition transform hover:scale-[1.01]"
               >
                 <Image
-                  src={track.imageUrl || "/default-track.jpg"}
+                  src={getValidImageUrl(track.imageUrl)}
                   alt={track.title}
                   width={400}
                   height={300}
@@ -85,16 +89,13 @@ export default async function AccountPage() {
                 key={purchase.id}
                 className="relative overflow-hidden rounded-lg shadow hover:shadow-lg transition transform hover:scale-[1.01]"
               >
-                {/* Background image */}
                 <Image
-                  src={purchase.track.imageUrl || "/default-track.jpg"}
+                  src={getValidImageUrl(purchase.track.imageUrl)}
                   alt={purchase.track.title}
                   width={400}
                   height={300}
                   className="w-full h-64 object-cover"
                 />
-
-                {/* Overlay */}
                 <div className="absolute inset-0 bg-black/60 backdrop-blur-sm text-white p-4 flex flex-col justify-between">
                   <div>
                     <h3 className="font-bold text-base">{purchase.track.title}</h3>
