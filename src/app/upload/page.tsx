@@ -147,8 +147,8 @@ export default function UploadPage() {
           disabled={!isValid || uploading}
           className={`w-full text-white py-2 rounded text-sm font-medium transition ${
             !isValid || uploading
-              ? 'bg-blue-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700'
+              ? 'bg-zinc-500 cursor-not-allowed'
+              : 'bg-black hover:bg-zinc-800'
           }`}
         >
           {uploading ? 'Saving...' : 'Save Track'}

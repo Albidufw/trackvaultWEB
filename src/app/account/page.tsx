@@ -14,9 +14,7 @@ export default async function AccountPage() {
     include: {
       tracks: true,
       purchases: {
-        include: {
-          track: true,
-        },
+        include: { track: true },
       },
     },
   });
@@ -80,21 +78,20 @@ export default async function AccountPage() {
             {purchasedTracks.map((purchase) => (
               <div
                 key={purchase.id}
-                className="relative overflow-hidden rounded-lg shadow hover:shadow-lg transition transform hover:scale-[1.01]"
+                className="relative overflow-hidden rounded-lg shadow hover:shadow-lg transition transform hover:scale-[1.01] bg-white"
               >
                 <img
                   src={purchase.track.imageUrl || "/default-track.jpg"}
                   alt={purchase.track.title}
                   className="w-full h-64 object-cover"
                 />
-
-                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm text-white p-4 flex flex-col justify-between">
+                <div className="p-4 text-black flex flex-col justify-between h-64 -mt-64 bg-gradient-to-t from-white/80 via-white/70 to-transparent">
                   <div>
                     <h3 className="font-bold text-base">{purchase.track.title}</h3>
-                    <p className="text-sm text-gray-200">
+                    <p className="text-sm text-gray-700">
                       ${Number(purchase.amount).toFixed(2)}
                     </p>
-                    <p className="text-xs text-gray-300">
+                    <p className="text-xs text-gray-600">
                       Purchased: {new Date(purchase.createdAt).toLocaleDateString()}
                     </p>
                   </div>
@@ -108,7 +105,7 @@ export default async function AccountPage() {
                     <a
                       href={purchase.track.fileUrl}
                       download
-                      className="mt-3 inline-block w-full text-center bg-white text-black font-medium text-sm py-2 rounded-md hover:bg-zinc-100 transition border border-zinc-300"
+                      className="mt-3 inline-block w-full text-center bg-black text-white font-medium text-sm py-2 rounded-md hover:bg-zinc-900 transition"
                     >
                       Download Track
                     </a>
