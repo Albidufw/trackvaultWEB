@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { items } = body;
 
-    console.log("📦 Incoming checkout items:", items);
+    console.log("Incoming checkout items:", items);
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
       ? items.map((item: any) => item?.trackId).filter(Boolean).join(",")
       : "";
 
-      console.log("📦 Incoming checkout items:", items);
+      console.log("Incoming checkout items:", items);
       console.log("User ID:", user.id);
       console.log("Track IDs:", trackIds);
       
@@ -64,11 +64,11 @@ export async function POST(req: Request) {
       },
     });
 
-    console.log("✅ Stripe session metadata:", checkoutSession.metadata);
+    console.log("Stripe session metadata:", checkoutSession.metadata);
 
     return NextResponse.json({ url: checkoutSession.url });
   } catch (err) {
-    console.error("❌ Checkout Error:", err);
+    console.error("Checkout Error:", err);
     return NextResponse.json({ error: "Checkout failed." }, { status: 500 });
   }
 }

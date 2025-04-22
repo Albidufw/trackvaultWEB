@@ -1,4 +1,3 @@
-// src/app/api/webhook/route.ts
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import prisma from "@/lib/prisma";
@@ -48,14 +47,14 @@ export async function POST(req: Request) {
             trackId,
             amount: session.amount_total
               ? session.amount_total / 100
-              : 0, // store per-track amount if needed
+              : 0,
           },
         });
       }
 
-      console.log("✅ Purchases saved:", { userId, trackIds });
+      console.log("Purchases saved:", { userId, trackIds });
     } catch (err) {
-      console.error("❌ Failed to save purchases:", err);
+      console.error("Failed to save purchases:", err);
       return NextResponse.json({ error: "Database error" }, { status: 500 });
     }
   }

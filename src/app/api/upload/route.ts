@@ -91,7 +91,7 @@ export async function POST(req: Request) {
     const audioFileName = audioFile.newFilename || "track.mp3";
     const fileUrl = `/uploads/${audioFileName}`;
 
-    //Fallback if user didn't upload an image
+    //if user didn't upload an image
     const imageFileName = imageFile?.newFilename || null;
     const imageUrl = imageFileName ? `/uploads/${imageFileName}` : "/default-track.jpg";
 

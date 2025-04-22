@@ -32,8 +32,8 @@ export default function TracksPage() {
       try {
         const res = await fetch('/api/tracks', {
           method: 'GET',
-          cache: 'no-store', // prevent stale data in production
-          next: { revalidate: 10 }, // optional, to revalidate every 10 seconds
+          cache: 'no-store',
+          next: { revalidate: 10 }, //revalidate every 10 seconds
         });
 
         const data = await res.json();

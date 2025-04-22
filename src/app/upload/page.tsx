@@ -54,7 +54,6 @@ export default function UploadPage() {
         if (!imageUrl) throw new Error('Image upload failed');
       }
 
-      // No manual API call needed — UploadThing handles everything
       router.push('/store');
     } catch (err) {
       console.error('[UPLOAD_PAGE] Upload error:', err);
