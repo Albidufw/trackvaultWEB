@@ -26,7 +26,6 @@ export default async function AccountPage() {
 
   const purchasedTracks = user.purchases.filter((p) => !!p.track);
 
-  // 👇 helper to validate image URLs
   const getValidImageUrl = (url: string | null | undefined) =>
     url && url.startsWith("http") ? url : "/default-track.jpg";
 
@@ -61,12 +60,12 @@ export default async function AccountPage() {
                 className="relative overflow-hidden rounded-lg shadow hover:shadow-lg transition transform hover:scale-[1.01]"
               >
                 <Image
-                  src={getValidImageUrl(track.imageUrl)}
+                  src={track.imageUrl || "/default-track.jpg"}
                   alt={track.title}
                   width={400}
                   height={300}
                   className="w-full h-64 object-cover"
-                />
+                  />
                 <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-3">
                   <h3 className="font-semibold text-sm truncate">{track.title}</h3>
                   <p className="text-sm">${Number(track.price).toFixed(2)}</p>
@@ -90,11 +89,14 @@ export default async function AccountPage() {
                 className="relative overflow-hidden rounded-lg shadow hover:shadow-lg transition transform hover:scale-[1.01]"
               >
                 <Image
-                  src={getValidImageUrl(purchase.track.imageUrl)}
+                  src={purchase.track.imageUrl || "/default-track.jpg"}
                   alt={purchase.track.title}
                   width={400}
                   height={300}
                   className="w-full h-64 object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/default-track.jpg";
+                  }}
                 />
                 <div className="absolute inset-0 bg-black/60 backdrop-blur-sm text-white p-4 flex flex-col justify-between">
                   <div>
@@ -116,9 +118,9 @@ export default async function AccountPage() {
                     <a
                       href={purchase.track.fileUrl}
                       download
-                      className="mt-3 inline-flex items-center gap-2 bg-white text-black text-sm px-4 py-1.5 rounded-md hover:bg-zinc-200 transition"
+                      className="mt-3 inline-block w-full text-center bg-white text-black font-medium text-sm py-2 rounded-md hover:bg-zinc-100 transition border border-zinc-300"
                     >
-                      ⬇ Download
+                      Download Track
                     </a>
                   </div>
                 </div>
