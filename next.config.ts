@@ -4,7 +4,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    domains: ['utfs.io'],
+    domains: ['utfs.io', 'uploadthing.com'],
   },
 };
 
